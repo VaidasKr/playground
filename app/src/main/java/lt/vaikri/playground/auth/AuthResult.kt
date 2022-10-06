@@ -1,4 +1,3 @@
 package lt.vaikri.playground.auth
 
-class AuthResult {
-}
+data class AuthResult(val token: String?)

@@ -1,3 +1,7 @@
 package lt.vaikri.playground.auth
 
-data class AuthState(val someString: String)
+sealed interface AuthState {
+    object Loading : AuthState
+    object LoggedIn : AuthState
+    data class Login(val intentOwner: AuthIntentOwner) : AuthState
+}
