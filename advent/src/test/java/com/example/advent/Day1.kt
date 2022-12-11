@@ -1,4 +1,4 @@
-package lt.vaikri.playground
+package com.example.advent
 
 import org.junit.Test
 
@@ -2272,7 +2272,6 @@ class Day1 {
     6865
     1691
 """.trimIndent()
-
         var index = 1
         var indexCalories = 0
         var max = IntArray(3) { 0 }
@@ -2290,17 +2289,17 @@ class Day1 {
         max.addMax(indexCalories)
         println("max ${max.sum()}")
     }
-}
 
-private fun IntArray.addMax(max: Int) {
-    if (max > get(0)) {
-        set(2, get(1))
-        set(1, get(0))
-        set(0, max)
-    } else if (max > get(1)) {
-        set(2, get(1))
-        set(1, max)
-    } else if (max > get(2)) {
-        set(2, max)
+    private fun IntArray.addMax(max: Int) {
+        if (max > get(0)) {
+            set(2, get(1))
+            set(1, get(0))
+            set(0, max)
+        } else if (max > get(1)) {
+            set(2, get(1))
+            set(1, max)
+        } else if (max > get(2)) {
+            set(2, max)
+        }
     }
 }

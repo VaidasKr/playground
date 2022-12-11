@@ -1,4 +1,4 @@
-package lt.vaikri.playground
+package com.example.advent
 
 import org.junit.Assert
 import org.junit.Test
