@@ -26,8 +26,8 @@ class Day13 {
     fun compare(left: String, right: String): Int = compareLists(parse(left), parse(right))
 
     private fun compareLists(left: List<*>, right: List<*>): Int {
-        val maxLength = left.size.coerceAtLeast(right.size)
-        for (i in 0 until maxLength) {
+        val minLength = left.size.coerceAtMost(right.size)
+        for (i in 0 until minLength) {
             if (i > left.lastIndex) return -1
             if (i > right.lastIndex) return 1
             val leftElement = left[i]
@@ -39,23 +39,21 @@ class Day13 {
                 val compare = compareLists(leftElement, rightElement)
                 if (compare != 0) return compare
             } else if (leftElement is Int) {
-                val compare = compareLists(listOf(leftElement), rightElement as List<*>)
+                val compare = compareLists(left.drop(i), rightElement as List<*>)
                 if (compare != 0) return compare
             } else if (rightElement is Int) {
-                val compare = compareLists(leftElement as List<*>, listOf(rightElement))
+                val compare = compareLists(leftElement as List<*>, right.drop(i))
                 if (compare != 0) return compare
-            } else {
-                throw RuntimeException("i dont know")
             }
         }
-        return 0
+        return left.size - right.size
     }
 
     fun sumOfRightOrderIndexes(): Int = rightOrderIndexes.sum()
 
-    fun parse(line: String): List<Any> = line.parseList(AtomicInteger(0))
+    private fun parse(line: String): List<*> = line.parseList(AtomicInteger(0))
 
-    private fun String.parseList(index: AtomicInteger): List<Any> {
+    private fun String.parseList(index: AtomicInteger): List<*> {
         index.getAndIncrement()
         val list = mutableListOf<Any>()
         while (index.get() < length) {
@@ -75,15 +73,9 @@ class Day13 {
     }
 
     private fun String.parseDigit(index: AtomicInteger): Int {
-        var number = get(index.getAndIncrement()).digitToInt()
-        while (index.get() < length) {
-            val char = get(index.getAndIncrement())
-            if (char == ',' || char == ']') {
-                return number
-            } else {
-                number = number * 10 + char.digitToInt()
-            }
-        }
+        val endIndex = indexOfAny(charArrayOf(',', ']'), index.get())
+        val number = substring(index.get(), endIndex).toInt()
+        index.set(endIndex)
         return number
     }
 }
