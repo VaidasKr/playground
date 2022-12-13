@@ -6,6 +6,18 @@ fun Int.assert(expected: Int) {
     Assert.assertEquals(expected, this)
 }
 
+fun Boolean.assert(expected: Boolean) {
+    if (expected) assertTrue() else assertFalse()
+}
+
+fun Boolean.assertTrue() {
+    Assert.assertTrue(this)
+}
+
+fun Boolean.assertFalse() {
+    Assert.assertFalse(this)
+}
+
 fun Int.print() {
     println(this)
 }
@@ -16,6 +28,6 @@ fun <T : Any> T.readFile(name: String): String = fileStream(name).readText().tri
 
 fun <T : Any> T.readFileLines(name: String): List<String> = fileStream(name).readLines()
 
-fun <T : Any> T.fileLines(name: String, onLine: (String) -> Unit): Sequence<String> {
+fun <T : Any> T.fileLines(name: String): Sequence<String> {
     return fileStream(name).lineSequence()
 }
