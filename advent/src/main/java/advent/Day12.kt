@@ -6,14 +6,13 @@ object Day12 {
         val map = input.replace(" ", "").split("\n")
             .mapIndexed { indexY, line ->
                 line.mapIndexed { indexX, char ->
-                    val value = when (char) {
+                    when (char) {
                         'S' -> {
                             start = Position(indexX, indexY)
                             'a'
                         }
                         else -> char
                     }
-                    value
                 }
             }
         return shortestPath(map, start)
@@ -28,9 +27,7 @@ object Day12 {
                         'S' -> 'a'
                         else -> char
                     }
-                    if (value == 'a') {
-                        starts.add(Position(indexX, indexY))
-                    }
+                    if (value == 'a') starts.add(Position(indexX, indexY))
                     value
                 }
             }
