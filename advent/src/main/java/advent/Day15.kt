@@ -63,11 +63,29 @@ class Day15(input: String) {
             while (x <= size) {
                 iterations++
                 lastX = lastXforNearestSensor(x, y)
-                if (lastX == -1) {
-                    println("iterations: $iterations x: $x y: $y")
-                    return x * 4_000_000L + y
-                }
+                if (lastX == -1) return x * 4_000_000L + y
                 x = lastX + 1
+            }
+        }
+        return 0
+    }
+
+    fun possibleBeaconFrequency2(size: Int): Long {
+        val possibleRange = 0..size
+        for (i in 0 until sensorCount) {
+            val sensorX = sensors[i * 2]
+            val sensorY = sensors[i * 2 + 1]
+            val sensorDistance = sensorDistance[i] + 1
+            val left = sensorX - sensorDistance
+            val right = sensorX + sensorDistance
+            var y: Int
+            for ((dif, x) in (left..right).withIndex()) {
+                if (x in possibleRange) {
+                    y = sensorY - dif
+                    if (y in possibleRange && !inSensorDistance(x, y)) return x * 4_000_000L + y
+                    y = sensorY + dif
+                    if (y in possibleRange && !inSensorDistance(x, y)) return x * 4_000_000L + y
+                }
             }
         }
         return 0
@@ -85,5 +103,15 @@ class Day15(input: String) {
             }
         }
         return -1
+    }
+
+    private fun inSensorDistance(x: Int, y: Int): Boolean {
+        for (i in 0 until sensorCount) {
+            val sensorX = sensors[i * 2]
+            val sensorY = sensors[i * 2 + 1]
+            val distance = (sensorX - x).absoluteValue + (sensorY - y).absoluteValue
+            if (distance <= sensorDistance[i]) return true
+        }
+        return false
     }
 }
