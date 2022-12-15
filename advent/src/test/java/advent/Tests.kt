@@ -26,6 +26,14 @@ fun Long.print() {
     println(this)
 }
 
+fun String.print() {
+    println(this)
+}
+
+fun String.assert(expected: String) {
+    Assert.assertEquals(expected, this)
+}
+
 fun Long.assert(expected: Long) {
     Assert.assertEquals(expected, this)
 }
