@@ -22,6 +22,14 @@ fun Int.print() {
     println(this)
 }
 
+fun Long.print() {
+    println(this)
+}
+
+fun Long.assert(expected: Long) {
+    Assert.assertEquals(expected, this)
+}
+
 fun <T : Any> T.fileStream(name: String) = javaClass.classLoader.getResourceAsStream(name)!!.bufferedReader()
 
 fun <T : Any> T.readFile(name: String): String = fileStream(name).readText().trimEnd()
