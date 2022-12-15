@@ -1,4 +1,4 @@
-package advent
+package advent.year2022
 
 object Day12 {
     fun shortestDistanceFromStoE(input: String): Int {

@@ -1,5 +1,8 @@
-package advent
+package advent.year2022
 
+import advent.assert
+import advent.fileLines
+import advent.print
 import org.junit.Assert
 import org.junit.Test
 

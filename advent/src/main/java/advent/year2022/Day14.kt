@@ -1,4 +1,4 @@
-package advent
+package advent.year2022
 
 class Day14 {
     private var minX = 500

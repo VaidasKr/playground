@@ -1,4 +1,4 @@
-package advent
+package advent.year2022
 
 object Day1 {
     fun part1(input: String): Int {

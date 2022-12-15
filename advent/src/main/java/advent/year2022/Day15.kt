@@ -1,4 +1,4 @@
-package advent
+package advent.year2022
 
 import kotlin.math.absoluteValue
 

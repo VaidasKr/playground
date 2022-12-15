@@ -1,5 +1,6 @@
-package advent
+package advent.year2022
 
+import advent.assert
 import org.junit.Test
 
 class Day1Test {

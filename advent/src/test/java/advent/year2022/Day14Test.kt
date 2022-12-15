@@ -1,5 +1,8 @@
-package advent
+package advent.year2022
 
+import advent.assert
+import advent.print
+import advent.readFileLines
 import org.junit.Test
 
 class Day14Test {
