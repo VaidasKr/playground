@@ -45,7 +45,7 @@ class Day14Test {
     @Test
     fun actual() {
         val day14 = Day14()
-        day14.addLines(readFileLines("day14"))
+        day14.addLines(readFileLines("2022/day14"))
         day14.draw()
         println()
         var bags = 0
@@ -61,7 +61,7 @@ class Day14Test {
     @Test
     fun actual2() {
         val day14 = Day14()
-        day14.addLines(readFileLines("day14"))
+        day14.addLines(readFileLines("2022/day14"))
         day14.draw()
         println()
         var bags = 0

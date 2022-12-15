@@ -32,12 +32,12 @@ class Day13Test {
     @Test
     fun `test sample`() {
         val sample = Day13()
-        fileLines("day13sample").forEach {
+        fileLines("2022/day13sample").forEach {
             sample.add(it)
         }
         sample.sumOfRightOrderIndexes().assert(13)
         val actual = Day13()
-        fileLines("day13actual").forEach {
+        fileLines("2022/day13actual").forEach {
             actual.add(it)
         }
         actual.sumOfRightOrderIndexes().assert(5623)
@@ -47,7 +47,7 @@ class Day13Test {
     fun `test part 2`() {
         val additional = sequenceOf("[[2]]", "[[6]]")
         val day = Day13()
-        val sorted = fileLines("day13sample").plus(additional).toMutableList()
+        val sorted = fileLines("2022/day13sample").plus(additional).toMutableList()
             .filter { it.isNotBlank() }
             .sortedWith { first, second ->
                 day.compare(first, second)
