@@ -26,14 +26,13 @@ object Day18 {
 
     private fun calculateFreeSides(toCubes: List<Cube>): Long {
         var sides = 0L
-        for (i in toCubes.indices) {
-            val cube = toCubes[i]
-            var pointSides = 6
-            for (j in toCubes.indices) {
-                if (i == j) continue
-                if (cube.isTouching(toCubes[j])) pointSides--
+        val lava = HashSet(toCubes)
+        toCubes.forEach { cube ->
+            cube.neighbours().forEach {
+                if (!lava.contains(it)) {
+                    sides++
+                }
             }
-            sides += pointSides
         }
         return sides
     }
@@ -143,9 +142,8 @@ object Day18 {
     }
 
     private fun calculateOutside(lavaCubes: List<Cube>, minEdge: Cube, maxEdge: Cube): Long {
-        val lava = hashSetOf<Cube>()
+        val lava = HashSet(lavaCubes)
         val air = hashSetOf<Cube>()
-        lava.addAll(lavaCubes)
         var sides = 0L
         lavaCubes.forEach { cube ->
             cube.neighbours().forEach { neighbour ->
