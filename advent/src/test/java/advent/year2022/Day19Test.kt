@@ -1,7 +1,6 @@
 package advent.year2022
 
 import advent.assert
-import advent.print
 import advent.readFile
 import org.junit.Assert
 import org.junit.Test
@@ -16,13 +15,24 @@ class Day19Test {
         day19.qualitySums(24).toList().apply {
             Assert.assertEquals(listOf(9, 12), this)
         }
+        day19.qualitySums2(24).toList().apply {
+            Assert.assertEquals(listOf(9, 12), this)
+        }
         day19.qualityLevelSum(24).assert(33)
     }
 
     @Test
     fun actual() {
         val day19 = Day19(readFile("2022/day19"))
-        day19.qualityLevelSum(24).print()
-        day19.qualitySums(32).take(3).fold(1) { acc, sum -> acc * sum }.print()
+        var sum = 0
+        day19.qualitySums(24).forEachIndexed { index, i ->
+            println("$index $i")
+        }
+        day19.qualitySums2(24).forEachIndexed { index, i ->
+            println("$index $i")
+            sum += (index + 1) * i
+        }
+        sum.assert(1346)
+        day19.qualitySums2(32).take(3).fold(1) { acc, multi -> acc * multi }.assert(7644)
     }
 }

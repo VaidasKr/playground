@@ -33,10 +33,16 @@ class Day19(input: String) {
     }
 
     fun qualitySums(time: Int): Sequence<Int> = sequence {
-        for (print in blueprints) yield(print.search(time))
+        for (print in blueprints) yield(print.searchFast(time))
     }
 
-    fun qualityLevelSum(time: Int): Int = blueprints.sumOf { blueprint -> blueprint.id * blueprint.search(time) }
+    fun qualitySums2(time: Int): Sequence<Int> = sequence {
+        for (print in blueprints) {
+            yield(print.search(time))
+        }
+    }
+
+    fun qualityLevelSum(time: Int): Int = blueprints.sumOf { blueprint -> blueprint.id * blueprint.searchFast(time) }
 
     private data class Blueprint(
         val id: Int,
@@ -47,7 +53,40 @@ class Day19(input: String) {
         val geodeOrePrice: Int,
         val geodeObsidianPrice: Int
     ) {
-        fun search(time: Int): Int {
+        val oreRoboPrice = Price(PartState(oreOrePrice, 0, 0, 0), PartState(1, 0, 0, 0))
+        val clayRoboPrice = Price(PartState(clayOrePrice, 0, 0, 0), PartState(0, 1, 0, 0))
+        val obsRoboPrice = Price(PartState(obsidianOrePrice, obsidianClayPrice, 0, 0), PartState(0, 0, 1, 0))
+        val geoRoboPrice = Price(PartState(geodeOrePrice, 0, geodeObsidianPrice, 0), PartState(0, 0, 0, 1))
+
+        fun search(time: Int): Int = search(
+            time,
+            ListState(0, PartState(0, 0, 0, 0), PartState(1, 0, 0, 0)),
+            AtomicInteger(0)
+        )
+
+
+        fun search(time: Int, state: ListState, highest: AtomicInteger): Int {
+            if (state.time == time) {
+                return highest.updateAndGet { state.minerals.geo.coerceAtLeast(it) }
+            }
+            val minuteLeft = time - state.time
+            val maxCanProduce = state.minerals.geo + (0 until minuteLeft).sumOf { state.robots.geo + it }
+            if (maxCanProduce < highest.get()) return 0
+            val onBuy: (ListState) -> Unit = { newState -> search(time, newState, highest) }
+            if (state.canBuy(geoRoboPrice)) {
+                state.buy(geoRoboPrice, onBuy)
+            } else if (state.robots.obs == 0 && state.canBuy(obsRoboPrice)) {
+                state.buy(obsRoboPrice, onBuy)
+            } else {
+                state.buy(obsRoboPrice, onBuy)
+                state.buy(clayRoboPrice, onBuy)
+                state.buy(oreRoboPrice, onBuy)
+                onBuy(state.progress())
+            }
+            return highest.get()
+        }
+
+        fun searchFast(time: Int): Int {
             val startState = CollectState(
                 minute = 0,
                 ore = 0,
@@ -59,19 +98,16 @@ class Day19(input: String) {
                 obsidianProd = 0,
                 geodeProd = 0
             )
-            return searchOres(time, startState, AtomicInteger(0))
+            return searchFast(time, startState, AtomicInteger(0))
         }
 
-        private fun searchOres(time: Int, state: CollectState, highest: AtomicInteger): Int {
+        private fun searchFast(time: Int, state: CollectState, highest: AtomicInteger): Int {
             if (state.minute >= time) {
-                highest.updateAndGet { state.geode.coerceAtLeast(it) }
-                return state.geode
+                return highest.updateAndGet { state.geode.coerceAtLeast(it) }
             }
             val minuteLeft = time - state.minute
             val maxCanProduce = state.geode + (0 until minuteLeft).sumOf { state.geodeProd + it }
             if (maxCanProduce < highest.get()) return 0
-
-            var max = 0
 
             if (state.obsidianProd > 0) {
                 val oresNeeded = geodeOrePrice - state.ore
@@ -89,7 +125,7 @@ class Day19(input: String) {
                     geodeProd = newState.geodeProd + 1
                 )
 
-                max = searchOres(time, stateAfterBuilt, highest).coerceAtLeast(max)
+                searchFast(time, stateAfterBuilt, highest)
             }
             if (state.clayProd > 0) {
                 val oresNeeded = obsidianOrePrice - state.ore
@@ -107,7 +143,7 @@ class Day19(input: String) {
                     obsidianProd = newState.obsidianProd + 1
                 )
 
-                max = searchOres(time, stateAfterBuilt, highest).coerceAtLeast(max)
+                searchFast(time, stateAfterBuilt, highest)
             }
             if (state.oreProd > 0) {
                 val oreNeeded = clayOrePrice - state.ore
@@ -118,21 +154,53 @@ class Day19(input: String) {
                 }
                 val newState = state.progress(time, minutesToWait)
                 val buildRobo = newState.copy(ore = newState.ore - clayOrePrice, clayProd = newState.clayProd + 1)
-                max = searchOres(time, buildRobo, highest).coerceAtLeast(max)
+                searchFast(time, buildRobo, highest)
             }
-            if (state.oreProd > 0) {
-                val oreNeeded = oreOrePrice - state.ore
-                val minutesToWait = if (oreNeeded <= 0) {
-                    1
-                } else {
-                    ceil(oreNeeded / state.oreProd.toFloat()).toInt() + 1
-                }
-                val newState = state.progress(time, minutesToWait)
-                val buildRobo = newState.copy(ore = newState.ore - oreOrePrice, oreProd = newState.oreProd + 1)
-                max = searchOres(time, buildRobo, highest).coerceAtLeast(max)
+            val oreNeeded = oreOrePrice - state.ore
+            val minutesToWait = if (oreNeeded <= 0) {
+                1
+            } else {
+                ceil(oreNeeded / state.oreProd.toFloat()).toInt() + 1
             }
-            return max
+            val newState = state.progress(time, minutesToWait)
+            val buildRobo = newState.copy(ore = newState.ore - oreOrePrice, oreProd = newState.oreProd + 1)
+            searchFast(time, buildRobo, highest)
+
+            return highest.get()
         }
+    }
+
+    private data class ListState(
+        val time: Int,
+        val minerals: PartState,
+        val robots: PartState
+    ) {
+        fun progress(): ListState =
+            ListState(time + 1, minerals + robots, robots)
+
+        fun canBuy(price: Price): Boolean = minerals.enoughFor(price.price)
+
+        inline fun buy(price: Price, onBuy: (ListState) -> Unit) {
+            if (canBuy(price)) onBuy(progressWithPurchase(price))
+        }
+
+        fun progressWithPurchase(price: Price): ListState =
+            ListState(time + 1, minerals - price.price + robots, robots + price.update)
+    }
+
+    private data class PartState(val ore: Int, val clay: Int, val obs: Int, val geo: Int) {
+        operator fun minus(other: PartState): PartState =
+            PartState(ore - other.ore, clay - other.clay, obs - other.obs, geo - other.geo)
+
+        operator fun plus(other: PartState): PartState =
+            PartState(ore + other.ore, clay + other.clay, obs + other.obs, geo + other.geo)
+
+        fun enoughFor(other: PartState): Boolean =
+            ore >= other.ore && clay >= other.clay && obs >= other.obs && geo >= other.geo
+    }
+
+    private data class Price(val price: PartState, val update: PartState) {
+        operator fun plus(other: Price): Price = Price(price + other.price, update + other.update)
     }
 
     private data class CollectState(
