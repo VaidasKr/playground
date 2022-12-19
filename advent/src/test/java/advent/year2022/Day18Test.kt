@@ -17,20 +17,23 @@ class Day18Test {
     @Test
     fun sample() {
         val input = "2,2,2\n1,2,2\n3,2,2\n2,1,2\n2,3,2\n2,2,1\n2,2,3\n2,2,4\n2,2,6\n1,2,5\n3,2,5\n2,1,5\n2,3,5"
-        Day18.calculateTotalArea(input).assert(64)
-        Day18.calculateOutsideArea(input).assert(58)
+        Day18.calculateTotalWithCubes(input).assert(64)
+        Day18.print(input)
+        Day18.calculateOutside(input).assert(58)
     }
 
     @Test
     fun actual() {
-        printArea(readFile("2022/day18"))
+        val input = readFile("2022/day18")
+        printArea(input)
+        Day18.calculateOutside(input).print()
     }
 
     private fun calculateArea(input: String, expected: Long) {
-        Day18.calculateTotalArea(input).assert(expected)
+        Day18.calculateTotalWithCubes(input).assert(expected)
     }
 
     private fun printArea(input: String) {
-        Day18.calculateTotalArea(input).print()
+        Day18.calculateTotalWithCubes(input).print()
     }
 }
