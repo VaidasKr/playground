@@ -80,23 +80,19 @@ class Day19(input: String) {
         )
 
         private fun searchDecisionBased(time: Int, state: ListState, highest: AtomicInteger): Int {
-            if (state.time == time) {
-                return highest.updateAndGet { state.minerals.geo.coerceAtLeast(it) }
-            }
+            if (state.time == time) return highest.updateAndGet { state.minerals.geo.coerceAtLeast(it) }
             val minuteLeft = time - state.time
             val maxCanProduce = state.minerals.geo + (0 until minuteLeft).sumOf { state.robots.geo + it }
             if (maxCanProduce < highest.get()) return 0
 
-            val onContinue: (ListState) -> Unit = { next -> searchStepBased(time, next, highest) }
-
             if (state.robots.obs > 0) {
-                proceedUntilCanBuy(state, geoRoboPrice, time, onContinue = onContinue)
+                proceedUntilCanBuy(state, geoRoboPrice, time) { next -> searchDecisionBased(time, next, highest) }
             }
             if (state.robots.clay > 0) {
-                proceedUntilCanBuy(state, obsRoboPrice, time, onContinue = onContinue)
+                proceedUntilCanBuy(state, obsRoboPrice, time) { next -> searchDecisionBased(time, next, highest) }
             }
-            proceedUntilCanBuy(state, clayRoboPrice, time, onContinue = onContinue)
-            proceedUntilCanBuy(state, oreRoboPrice, time, onContinue = onContinue)
+            proceedUntilCanBuy(state, clayRoboPrice, time) { next -> searchDecisionBased(time, next, highest) }
+            proceedUntilCanBuy(state, oreRoboPrice, time) { next -> searchDecisionBased(time, next, highest) }
             return highest.get()
         }
 
@@ -104,7 +100,7 @@ class Day19(input: String) {
             state: ListState,
             price: Price,
             maxTime: Int,
-            onContinue: (ListState) -> Unit
+            crossinline onContinue: (ListState) -> Unit
         ) {
             var next = state
             while (!next.canBuy(price)) {
