@@ -2,6 +2,7 @@ package advent.year2022
 
 import advent.packInts
 import advent.unpackInt1
+import advent.unpackInt2
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -10,11 +11,9 @@ class Day20(val values: IntArray) {
 
     fun perMutate(times: Int = values.size): IntArray {
         val mutationArray = LongArray(values.size) { index -> packInts(values[index], index) }
-        val valueArray = mutationArray.copyOf()
         repeat(times) { mutation ->
-            val element = valueArray[mutation]
-            val elementIndex = mutationArray.indexOf(element)
-            val swapCount = unpackInt1(element) % values.lastIndex
+            val elementIndex = mutationArray.indexOfFirst { unpackInt2(it) == mutation }
+            val swapCount = unpackInt1(mutationArray[elementIndex]) % values.lastIndex
             val sign = swapCount.sign
             var index = elementIndex
             repeat(swapCount.absoluteValue) {
@@ -26,11 +25,9 @@ class Day20(val values: IntArray) {
 
     fun perMutateWithKey(key: Long): LongArray {
         val mutationArray = Array(values.size) { index -> ValueWithIndex(values[index] * key, index) }
-        val valueArray = mutationArray.copyOf()
         doubleRepeat(10, values.size) { mutation ->
-            val element = valueArray[mutation]
-            val elementIndex = mutationArray.indexOf(element)
-            val swapCount = element.value % values.lastIndex
+            val elementIndex = mutationArray.indexOfFirst { it.index == mutation }
+            val swapCount = mutationArray[elementIndex].value % values.lastIndex
             val sign = swapCount.sign
             var index = elementIndex
             repeat(swapCount.absoluteValue.toInt()) {
