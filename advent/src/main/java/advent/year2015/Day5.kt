@@ -22,9 +22,18 @@ object Day5 {
     }
 
     fun isNice2(line: String): Boolean {
+        var hasRepeatPair = false
+        var hasRepeatingChar = false
         for (i in line.indices) {
             val char = line[i]
+            if (i + 2 < line.length && line[i + 2] == char) hasRepeatingChar = true
+            if (i + 1 < line.length - 2) {
+                val next = line[i + 1]
+                for (j in i + 2 until line.lastIndex) {
+                    if (line[j] == char && line[j + 1] == next) hasRepeatPair = true
+                }
+            }
         }
-        return false
+        return hasRepeatPair && hasRepeatingChar
     }
 }
