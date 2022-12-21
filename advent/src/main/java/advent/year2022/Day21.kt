@@ -46,22 +46,23 @@ object Day21 {
     fun findHumanNumber(input: String): Long {
         val numberMonkeys = hashMapOf<String, Long>()
         var monkeysWithOperation = hashSetOf<Monkey>()
-        var pairToFind = "" to ""
+        var rootOp: Monkey? = null
         input.split("\n").forEach { monkeyLine ->
             val name = monkeyLine.take(4)
-            if (name == human) {
-
-            } else if (monkeyLine[6].isDigit()) {
-                numberMonkeys[name] = monkeyLine.substring(6, monkeyLine.length).toLong()
-            } else if (name == "root") {
-                val first = monkeyLine.substring(6, 10)
-                val second = monkeyLine.substring(13, monkeyLine.length)
-                pairToFind = first to second
-            } else {
-                val first = monkeyLine.substring(6, 10)
-                val second = monkeyLine.substring(13, monkeyLine.length)
-                val op = monkeyLine[11].op()
-                monkeysWithOperation.add(Monkey(name, first, second, op))
+            if (name != human) {
+                if (monkeyLine[6].isDigit()) {
+                    numberMonkeys[name] = monkeyLine.substring(6, monkeyLine.length).toLong()
+                } else {
+                    val first = monkeyLine.substring(6, 10)
+                    val second = monkeyLine.substring(13, monkeyLine.length)
+                    val op = monkeyLine[11].op()
+                    val element = Monkey(name, first, second, op)
+                    if (name == "root") {
+                        rootOp = element
+                    } else {
+                        monkeysWithOperation.add(element)
+                    }
+                }
             }
         }
         val operationMap: Map<String, Monkey> = monkeysWithOperation.associateBy { it.name }
@@ -76,56 +77,29 @@ object Day21 {
                     numberMonkeys[monkey.name] = monkey.operation.perform(firstNum, secondNum)
                 }
             }
-            if (monkeysWithOperation != nextOperations) {
-                monkeysWithOperation = nextOperations
-            } else {
-                break
-            }
+            if (monkeysWithOperation == nextOperations) break
+            monkeysWithOperation = nextOperations
         }
-        var removed: String? = null
-        val first = numberMonkeys[pairToFind.first]
-        val second = numberMonkeys[pairToFind.second]
-        var value: Long
-        val find = if (first == null) {
-            value = second!!
-            pairToFind.first
-        } else {
-            value = first
-            pairToFind.second
+        var parentOp = rootOp!!
+        var value = 0L
+        numberMonkeys[parentOp.first]?.apply {
+            value = this
+            parentOp = operationMap[parentOp.second]!!
         }
-        var opMonkey = operationMap[find]!!
+        numberMonkeys[parentOp.second]?.apply {
+            value = this
+            parentOp = operationMap[parentOp.first]!!
+        }
         while (true) {
-            numberMonkeys[opMonkey.first]?.apply {
-                removed = opMonkey.first
+            numberMonkeys[parentOp.first]?.apply {
+                value = parentOp.operation.reverseSecond.perform(value, this)
+                if (parentOp.second == human) return value
+                parentOp = operationMap[parentOp.second]!!
             }
-            numberMonkeys[opMonkey.second]?.apply {
-                removed = opMonkey.second
-            }
-            if (removed != null) {
-                val nextOperations = hashSetOf<Monkey>()
-                monkeysWithOperation.forEach { monkey ->
-                    val firstNum = numberMonkeys[monkey.first]
-                    val secondNum = numberMonkeys[monkey.second]
-                    if (firstNum == null || secondNum == null) {
-                        nextOperations.add(monkey)
-                    } else {
-                        if (opMonkey.first == monkey.name || opMonkey.second == monkey.name) removed = monkey.name
-                        numberMonkeys[monkey.name] = monkey.operation.perform(firstNum, secondNum)
-                    }
-                }
-                monkeysWithOperation = nextOperations
-            }
-            if (removed != null) {
-                val removedValue = numberMonkeys[removed]!!
-                if (opMonkey.second == removed) {
-                    value = opMonkey.operation.reverseFirst.perform(value, removedValue)
-                    if (opMonkey.first == human) return value
-                    opMonkey = operationMap[opMonkey.first]!!
-                } else {
-                    value = opMonkey.operation.reverseSecond.perform(value, removedValue)
-                    if (opMonkey.second == human) return value
-                    opMonkey = operationMap[opMonkey.second]!!
-                }
+            numberMonkeys[parentOp.second]?.apply {
+                value = parentOp.operation.reverseFirst.perform(value, this)
+                if (parentOp.first == human) return value
+                parentOp = operationMap[parentOp.first]!!
             }
         }
     }
