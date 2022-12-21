@@ -41,7 +41,7 @@ object Day21 {
         }
     }
 
-    const val human = "humn"
+    private const val human = "humn"
 
     fun findHumanNumber(input: String): Long {
         val numberMonkeys = hashMapOf<String, Long>()
@@ -126,7 +126,7 @@ object Day21 {
         object MinusReverse : Operation {
             override val reverseFirst: Operation get() = Plus
             override val reverseSecond: Operation get() = Minus
-            override fun perform(val1: Long, val2: Long): Long = val2 - val1
+            override fun perform(val1: Long, val2: Long): Long = Minus.perform(val2, val1)
         }
 
         object Divide : Operation {
@@ -138,14 +138,13 @@ object Day21 {
         object DivideReverse : Operation {
             override val reverseFirst: Operation get() = Multiply
             override val reverseSecond: Operation get() = Divide
-            override fun perform(val1: Long, val2: Long): Long = val2 / val1
+            override fun perform(val1: Long, val2: Long): Long = Divide.perform(val2, val1)
         }
 
         object Multiply : Operation {
             override val reverseFirst: Operation get() = Divide
             override val reverseSecond: Operation get() = Divide
             override fun perform(val1: Long, val2: Long): Long = val1 * val2
-            override fun toString(): String = "multiply"
         }
     }
 }
