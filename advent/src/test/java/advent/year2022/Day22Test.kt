@@ -12,14 +12,184 @@ class Day22Test {
     fun sample() {
         parseFile("2022/day22sample") { day22, commands ->
             commands.forEach { command -> day22.runCommand(command) }
-            day22.currentState.score.assert(6032)
+            day22.flatState.score.assert(6032)
+        }
+    }
+
+    @Test
+    fun sampleCube() {
+        parseFile("2022/day22sample") { day22, commands ->
+            val wallInfoMap = buildList {
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Front,
+                        Day22.CubeWallRange(8, 11, 0, 3),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.Right),
+                            up = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.UpsideDown),
+                            right = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.UpsideDown),
+                            down = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.None)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Top,
+                        Day22.CubeWallRange(0, 3, 4, 7),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.Left),
+                            up = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.UpsideDown),
+                            right = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.None),
+                            down = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.UpsideDown)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Left,
+                        Day22.CubeWallRange(4, 7, 4, 7),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.None),
+                            up = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.Left),
+                            right = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.None),
+                            down = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.Right)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Down,
+                        Day22.CubeWallRange(8, 11, 4, 7),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.None),
+                            up = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.None),
+                            right = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.Left),
+                            down = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.None)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Back,
+                        Day22.CubeWallRange(8, 11, 8, 11),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.Left),
+                            up = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.None),
+                            right = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.None),
+                            down = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.UpsideDown)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Right,
+                        Day22.CubeWallRange(12, 15, 8, 11),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.None),
+                            up = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.Right),
+                            right = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.UpsideDown),
+                            down = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.Right)
+                        )
+                    )
+                )
+            }
+            day22.initCubeState(wallInfoMap)
+            commands.forEach { command ->
+                day22.runCommand(command)
+            }
+            day22.cubeState!!.score.assert(5031)
+        }
+    }
+
+    @Test
+    fun actualCube() {
+        parseFile("2022/day22") { day22, commands ->
+            val wallInfoMap = buildList {
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Front,
+                        Day22.CubeWallRange(50, 99, 0, 49),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.UpsideDown),
+                            up = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.Left),
+                            right = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.None),
+                            down = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.None)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Top,
+                        Day22.CubeWallRange(0, 49, 150, 199),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.Right),
+                            up = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.None),
+                            right = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.Right),
+                            down = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.None)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Left,
+                        Day22.CubeWallRange(0, 49, 100, 149),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.UpsideDown),
+                            up = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.Left),
+                            right = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.None),
+                            down = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.None)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Down,
+                        Day22.CubeWallRange(50, 99, 50, 99),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.Right),
+                            up = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.None),
+                            right = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.Right),
+                            down = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.None)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Back,
+                        Day22.CubeWallRange(50, 99, 100, 149),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Left, Day22.EdgeRotation.None),
+                            up = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.None),
+                            right = Day22.CubeEdge(Day22.CubeSide.Right, Day22.EdgeRotation.UpsideDown),
+                            down = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.Left)
+                        )
+                    )
+                )
+                add(
+                    Day22.CubeWallInfo(
+                        Day22.CubeSide.Right,
+                        Day22.CubeWallRange(100, 149, 0, 49),
+                        Day22.CubeEdges(
+                            left = Day22.CubeEdge(Day22.CubeSide.Front, Day22.EdgeRotation.None),
+                            up = Day22.CubeEdge(Day22.CubeSide.Top, Day22.EdgeRotation.None),
+                            right = Day22.CubeEdge(Day22.CubeSide.Back, Day22.EdgeRotation.UpsideDown),
+                            down = Day22.CubeEdge(Day22.CubeSide.Down, Day22.EdgeRotation.Left)
+                        )
+                    )
+                )
+            }
+            day22.initCubeState(wallInfoMap)
+            commands.forEach { command ->
+                day22.runCommand(command)
+            }
+            day22.cubeState!!.score.assert(104385)
         }
     }
 
     @Test
     fun sampleWithOverlaps() {
         parseFile("2022/day22sample") { day22, commands ->
-            val startState = day22.currentState
+            val startState = day22.flatState
             printMap(day22)
             day22.testFrom(startState) {
                 move(1)
@@ -62,12 +232,12 @@ class Day22Test {
     }
 
     private fun Day22.testFrom(state: Day22.State, onDay: Day22.() -> Unit) {
-        currentState = state
+        flatState = state
         onDay(this)
     }
 
     private fun Day22.assert(score: Int) {
-        currentState.score.assert(score)
+        flatState.score.assert(score)
     }
 
     private fun Day22.right() {
@@ -83,7 +253,7 @@ class Day22Test {
     }
 
     private fun printMap(day22: Day22) {
-        val position = day22.currentState.position
+        val position = day22.flatState.position
         val posX = unpackInt1(position)
         val posY = unpackInt2(position)
         print("  ")
@@ -91,7 +261,7 @@ class Day22Test {
             print(i % 10)
         }
         println()
-        val posChar = when (day22.currentState.direction) {
+        val posChar = when (day22.flatState.direction) {
             Day22.Direction.Down -> 'v'
             Day22.Direction.Left -> '<'
             Day22.Direction.Right -> '>'
@@ -117,7 +287,7 @@ class Day22Test {
             commands.forEach { command ->
                 day22.runCommand(command)
             }
-            day22.currentState.score.print()
+            day22.flatState.score.print()
         }
     }
 
