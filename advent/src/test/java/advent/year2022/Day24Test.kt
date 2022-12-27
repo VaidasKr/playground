@@ -27,6 +27,6 @@ class Day24Test {
     @Test
     fun actual2() {
         val day24 = Day24(readFile("2022/day24"))
-        day24.timeFromStartToFinishAndBack().print()
+        day24.timeFromStartToFinishAndBack().assert(747)
     }
 }

@@ -61,21 +61,20 @@ class Day24(input: String) {
                 !blizzardPoints.contains(option)
     }
 
-    fun timeFromStartToFinish(): Int = timeFromTo(mapState, start, end).time
+    fun timeFromStartToFinish(): Int = mapState.go(start, end).time
 
-    fun timeFromStartToFinishAndBack(): Int =
-        timeFromTo(timeFromTo(timeFromTo(mapState, start, end), end, start), start, end).time
+    fun timeFromStartToFinishAndBack(): Int = mapState.go(start, end).go(end, start).go(start, end).time
 
-    private fun timeFromTo(mapState: MapState, start: Point, end: Point): MapState {
-        var map = mapState
-        var ongoing = hashSetOf(TimePoint(mapState.time, start))
+    private fun MapState.go(from: Point, to: Point): MapState {
+        var map = this
+        var ongoing = hashSetOf(TimePoint(time, from))
         while (ongoing.isNotEmpty()) {
             map = map.update()
             val newOngoing = hashSetOf<TimePoint>()
             ongoing.forEach { timePoint ->
-                timePoint.options() { option ->
-                    if (option == end) return map
-                    if (option == start || map.isValid(option)) {
+                timePoint.options { option ->
+                    if (option == to) return map
+                    if (option == from || map.isValid(option)) {
                         newOngoing.add(TimePoint(map.time, option))
                     }
                 }
