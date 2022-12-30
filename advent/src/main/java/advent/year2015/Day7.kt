@@ -1,77 +1,63 @@
 package advent.year2015
 
 object Day7 {
-    fun toValueMap(input: String): Map<String, UInt> = buildMap {
-        var lines = input.split("\n").map { it.trim() }.toSet()
-        while (lines.isNotEmpty()) {
-            val leftLines = hashSetOf<String>()
-            lines.forEach { line ->
+    fun toValueMap(input: String): Map<String, UInt> = buildMapFromList(input.split("\n").map { it.trim() })
+
+    private fun buildMapFromList(list: List<String>): Map<String, UInt> {
+        val lines = list.toMutableList()
+        return buildMap {
+            while (lines.isNotEmpty()) {
+                val line = lines.removeFirst()
                 val lastSpace = line.indexOfLast { char -> char == ' ' }
                 val last = line.substring(lastSpace + 1, line.length)
                 if (line.contains("NOT")) {
-                    val before = line.indexOf(' ') + 1
-                    val after = line.indexOf(' ', before)
-                    val substring = line.substring(before, after)
-                    val number = substring.toUIntOrNull() ?: get(substring)
-                    if (number != null) {
-                        put(last, number xor 65535u)
-                    } else {
-                        leftLines.add(line)
-                    }
+                    parseOrKeep(lines, line, last, getValueAfter(line, "NOT")) { it xor 65535u }
                 } else if (line.contains("AND")) {
-                    val firstPart = line.substring(0, line.indexOf(' '))
-                    val firstNumber = firstPart.toUIntOrNull() ?: get(firstPart)
-                    val secondPart = line.substring(line.indexOf("AND") + 4, line.indexOf('-') - 1)
-                    val secondNumber = secondPart.toUIntOrNull() ?: get(secondPart)
-
-                    if (firstNumber == null || secondNumber == null) {
-                        leftLines.add(line)
-                    } else {
-                        put(last, firstNumber and secondNumber)
-                    }
+                    parseOrKeep(lines, line, last, "AND") { first, second -> first and second }
                 } else if (line.contains("OR")) {
-                    val firstPart = line.substring(0, line.indexOf(' '))
-                    val firstNumber = firstPart.toUIntOrNull() ?: get(firstPart)
-                    val secondPart = line.substring(line.indexOf("OR") + 3, line.indexOf('-') - 1)
-                    val secondNumber = secondPart.toUIntOrNull() ?: get(secondPart)
-                    if (firstNumber == null || secondNumber == null) {
-                        leftLines.add(line)
-                    } else {
-                        put(last, firstNumber or secondNumber)
-                    }
+                    parseOrKeep(lines, line, last, "OR") { first, second -> first or second }
                 } else if (line.contains("LSHIFT")) {
-                    val firstPart = line.substring(0, line.indexOf(' '))
-                    val firstNumber = firstPart.toUIntOrNull() ?: get(firstPart)
-                    val secondPart = line.substring(line.indexOf("LSHIFT") + 7, line.indexOf('-') - 1)
-                    val secondNumber = secondPart.toUIntOrNull() ?: get(secondPart)
-
-                    if (firstNumber == null || secondNumber == null) {
-                        leftLines.add(line)
-                    } else {
-                        put(last, firstNumber shl secondNumber.toInt())
-                    }
+                    parseOrKeep(lines, line, last, "LSHIFT") { first, second -> first shl second.toInt() }
                 } else if (line.contains("RSHIFT")) {
-                    val firstPart = line.substring(0, line.indexOf(' '))
-                    val firstNumber = firstPart.toUIntOrNull() ?: get(firstPart)
-                    val secondPart = line.substring(line.indexOf("RSHIFT") + 7, line.indexOf('-') - 1)
-                    val secondNumber = secondPart.toUIntOrNull() ?: get(secondPart)
-
-                    if (firstNumber == null || secondNumber == null) {
-                        leftLines.add(line)
-                    } else {
-                        put(last, firstNumber shr secondNumber.toInt())
-                    }
+                    parseOrKeep(lines, line, last, "RSHIFT") { first, second -> first shr second.toInt() }
                 } else {
-                    val firstPart = line.substring(0, line.indexOf(' '))
-                    val number = firstPart.toUIntOrNull() ?: get(firstPart)
-                    if (number != null) {
-                        put(last, number)
-                    } else {
-                        leftLines.add(line)
-                    }
+                    parseOrKeep(lines, line, last, firstPart(line)) { it }
                 }
             }
-            lines = leftLines
         }
+    }
+
+    private fun MutableMap<String, UInt>.parseOrKeep(
+        lines: MutableList<String>, line: String, key: String, number: UInt?, op: (UInt) -> UInt
+    ) {
+        if (number == null) lines.add(line) else put(key, op(number))
+    }
+
+    private fun MutableMap<String, UInt>.parseOrKeep(
+        lines: MutableList<String>, line: String, last: String, div: String, op: (UInt, UInt) -> UInt
+    ) {
+        val first = firstPart(line)
+        val second = getValueAfter(line, div)
+        if (first == null || second == null) lines.add(line) else put(last, op(first, second))
+    }
+
+    private fun MutableMap<String, UInt>.firstPart(line: String): UInt? {
+        val part = line.substring(0, line.indexOf(' '))
+        return part.toUIntOrNull() ?: get(part)
+    }
+
+    private fun MutableMap<String, UInt>.getValueAfter(line: String, after: String): UInt? {
+        val part = line.substring(line.indexOf(after) + after.length + 1, line.indexOf('-') - 1)
+        return part.toUIntOrNull() ?: get(part)
+    }
+
+    fun toValueMapWithOverride(input: String, overrideKey: String, overrideValue: String): Map<String, UInt> {
+        val lines = input.split("\n").map { it.trim() }
+        val lineToReplace = lines.indexOfFirst { it.endsWith("-> $overrideKey") }
+        val newLine = "$overrideValue -> b"
+        val updated = lines.toMutableList()
+        updated.removeAt(lineToReplace)
+        updated.add(newLine)
+        return buildMapFromList(updated)
     }
 }

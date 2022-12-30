@@ -1,6 +1,6 @@
 package advent.year2015
 
-import advent.print
+import advent.assert
 import advent.readFile
 import org.junit.Assert
 import org.junit.Test
@@ -38,15 +38,16 @@ class Day7Test {
 
     @Test
     fun actual() {
-        val toValueMap = Day7.toValueMap(readFile("2015/Day7"))
+        val input = readFile("2015/Day7")
+        val toValueMap = Day7.toValueMap(input)
         toValueMap.forEach {
             if (it.value > 65535u) {
                 println(it.key)
             }
         }
-        println(toValueMap)
-        toValueMap["a"]!!.toInt().print()
-    }
+        val overrideValue = toValueMap["a"]!!.toInt()
+        overrideValue.assert(16076)
 
-    private fun BooleanArray.fill(): BooleanArray = copyInto(BooleanArray(16))
+        Day7.toValueMapWithOverride(input, "b", overrideValue.toString())["a"]!!.toInt().assert(2797)
+    }
 }
