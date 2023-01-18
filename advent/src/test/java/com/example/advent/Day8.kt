@@ -1,5 +1,6 @@
 package com.example.advent
 
+import advent.assert
 import org.junit.Test
 
 class Day8 {
@@ -9,7 +10,7 @@ class Day8 {
 25512
 65332
 33549
-35390""".printAnswers()
+35390""".assertResults(21, 8)
     }
 
     @Test
@@ -115,14 +116,13 @@ class Day8 {
             001200323302010132410244321011414224212135145444322543324442532241244022442341044312322333033210110
             012221120210002201233041204141124034134123443133233422423453224352410321301023102020300131022311221
         """.trimIndent()
-            .printAnswers()
+            .assertResults(1827, 335580)
     }
 
-    private fun String.printAnswers() {
+    private fun String.assertResults(visibleCount: Int, maxThreeVisibilityScore: Int) {
         val matrix = toMatrix()
-        println(matrix)
-        println(matrix.visibleCount)
-        println(matrix.maxThreeVisibilityScore)
+        matrix.visibleCount.assert(visibleCount)
+        matrix.maxThreeVisibilityScore.assert(maxThreeVisibilityScore)
     }
 
     private fun String.toMatrix(): HeightMap {
@@ -132,7 +132,7 @@ class Day8 {
         }.run { HeightMap(this) }
     }
 
-    data class HeightMap(val heightMap: Array<IntArray>) {
+    class HeightMap(private val heightMap: Array<IntArray>) {
         val visibleCount: Int
             get() {
                 val height = heightMap.size
