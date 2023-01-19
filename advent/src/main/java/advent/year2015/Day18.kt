@@ -1,22 +1,18 @@
 package advent.year2015
 
-data class Day18(val lights: List<Boolean>, val height: Int, val width: Int) {
+data class Day18(val lights: BooleanArray, val height: Int, val width: Int) {
     val turnedOnLights: Int get() = lights.count { it }
 
     fun next(): Day18 {
-        val nextState = List(lights.size) { index ->
+        val nextState = BooleanArray(lights.size) { index ->
             val enabledNeighbours = countEnabledNeighbours(index)
             enabledNeighbours == 3 || ((lights[index]) && enabledNeighbours == 2)
         }
-
         return Day18(nextState, height, width)
     }
 
     fun enableCorners(): Day18 {
-        val newState = lights.mapIndexed { index, on ->
-            on || isCorner(index)
-        }
-        return Day18(newState, height, width)
+        return Day18(BooleanArray(lights.size) { lights[it] || isCorner(it) }, height, width)
     }
 
     private fun isCorner(index: Int): Boolean {
@@ -25,7 +21,7 @@ data class Day18(val lights: List<Boolean>, val height: Int, val width: Int) {
     }
 
     fun nextWithCorners(): Day18 {
-        val nextState = List(lights.size) { index ->
+        val nextState = BooleanArray(lights.size) { index ->
             if (isCorner(index)) {
                 true
             } else {
@@ -42,14 +38,18 @@ data class Day18(val lights: List<Boolean>, val height: Int, val width: Int) {
         val y = index / width
 
         var count = 0
-        if (x > 0 && lights[index - 1]) count++
-        if (x < width - 1 && lights[index + 1]) count++
+        if (x > 0) {
+            if (lights[index - 1]) count++
+            if (y > 0 && lights[index - 1 - width]) count++
+            if (y < height - 1 && lights[index - 1 + width]) count++
+        }
+        if (x < width - 1) {
+            if (lights[index + 1]) count++
+            if (y > 0 && lights[index + 1 - width]) count++
+            if (y < height - 1 && lights[index + 1 + width]) count++
+        }
         if (y > 0 && lights[index - width]) count++
         if (y < height - 1 && lights[index + width]) count++
-        if (x > 0 && y > 0 && lights[index - 1 - width]) count++
-        if (x > 0 && y < height - 1 && lights[index - 1 + width]) count++
-        if (x < width - 1 && y > 0 && lights[index + 1 - width]) count++
-        if (x < width - 1 && y < height - 1 && lights[index + 1 + width]) count++
         return count
     }
 
@@ -75,7 +75,7 @@ data class Day18(val lights: List<Boolean>, val height: Int, val width: Int) {
                     }
                 }
             }
-            return Day18(lights, height, width)
+            return Day18(lights.toBooleanArray(), height, width)
         }
     }
 }
