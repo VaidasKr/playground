@@ -1,36 +1,21 @@
 package advent.year2015
 
-data class Day18(val lights: BooleanArray, val height: Int, val width: Int) {
+class Day18(private val lights: BooleanArray, private val height: Int, private val width: Int) {
     val turnedOnLights: Int get() = lights.count { it }
 
-    fun next(): Day18 {
-        val nextState = BooleanArray(lights.size) { index ->
-            val enabledNeighbours = countEnabledNeighbours(index)
-            enabledNeighbours == 3 || ((lights[index]) && enabledNeighbours == 2)
-        }
-        return Day18(nextState, height, width)
-    }
+    fun next(): Day18 = Day18(BooleanArray(lights.size) { index -> isOn(index) }, height, width)
 
-    fun enableCorners(): Day18 {
-        return Day18(BooleanArray(lights.size) { lights[it] || isCorner(it) }, height, width)
-    }
+    fun enableCorners(): Day18 = Day18(BooleanArray(lights.size) { lights[it] || isCorner(it) }, height, width)
 
-    private fun isCorner(index: Int): Boolean {
-        val size = lights.size
-        return index == 0 || index == width - 1 || index == size - 1 || index == width * (height - 1)
-    }
+    private fun isCorner(index: Int): Boolean =
+        index == 0 || index == width - 1 || index == lights.lastIndex || index == width * (height - 1)
 
-    fun nextWithCorners(): Day18 {
-        val nextState = BooleanArray(lights.size) { index ->
-            if (isCorner(index)) {
-                true
-            } else {
-                val enabledNeighbours = countEnabledNeighbours(index)
-                enabledNeighbours == 3 || ((lights[index]) && enabledNeighbours == 2)
-            }
-        }
+    fun nextWithCorners(): Day18 =
+        Day18(BooleanArray(lights.size) { index -> isOn(index) || isCorner(index) }, height, width)
 
-        return Day18(nextState, height, width)
+    private fun isOn(index: Int): Boolean {
+        val enabledNeighbours = countEnabledNeighbours(index)
+        return enabledNeighbours == 3 || ((lights[index]) && enabledNeighbours == 2)
     }
 
     private fun countEnabledNeighbours(index: Int): Int {
