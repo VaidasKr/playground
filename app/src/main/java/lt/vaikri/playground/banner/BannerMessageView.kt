@@ -20,16 +20,17 @@ import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-// FIXME add text alpha animation
-//  add top inset padding if needed
-//  correct for text size
+// FIXME add top inset padding if needed
+//  compose
 class BannerMessageView(context: Context, attrs: AttributeSet) :
     View(context, attrs), ValueAnimator.AnimatorUpdateListener {
 
     private val fullWidth: Int get() = resources.displayMetrics.widthPixels
 
-    private var contentHeight = 0
+    private var messageBoxHeight = 0
     private var animator: ValueAnimator? = null
+    private var alphaOffset = 0F
+    private var alphaDif = 0F
     private var hasStatusBarPadding: Boolean = false
     private var statusBarPaddingColor: Int = 0x33000000
     private val statusBarPaddingRect = Rect()
@@ -38,7 +39,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
         .apply {
             textSize = resources.displayMetrics.scaledDensity * 20
             letterSpacing = 0.025f
-            color = Color.WHITE
+            color = 0x00FFFFFF
         }
     private var staticLayout = buildStaticTextLayout("")
     private val textHeightWightPadding = staticLayout.height + 2 * padding
@@ -59,7 +60,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(
             fullWidth,
-            if (hasStatusBarPadding) statusBarPaddingRect.height() + contentHeight else contentHeight
+            if (hasStatusBarPadding) statusBarPaddingRect.height() + messageBoxHeight else messageBoxHeight
         )
     }
 
@@ -67,7 +68,13 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
         animator?.cancel()
         val newMessage = state.renderMessage()
         staticLayout = buildStaticTextLayout(newMessage)
-        contentHeight = if (newMessage.isBlank()) 0 else textHeightWightPadding
+        if (newMessage.isBlank()) {
+            textPaint.alpha = 0
+            messageBoxHeight = 0
+        } else {
+            textPaint.alpha = 255
+            messageBoxHeight = textHeightWightPadding
+        }
         requestLayout()
     }
 
@@ -75,10 +82,10 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
         animator?.cancel()
         val newMessage = state.renderMessage()
         if (newMessage.isBlank()) {
-            animateToHeight(0)
+            animateHeightAndAlpha(0, 0)
         } else {
             staticLayout = buildStaticTextLayout(newMessage)
-            animateToHeight(textHeightWightPadding)
+            animateHeightAndAlpha(textHeightWightPadding, 255)
         }
     }
 
@@ -97,19 +104,22 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
             .setAlignment(Layout.Alignment.ALIGN_CENTER)
             .build()
 
-    private fun animateToHeight(targetHeight: Int) {
-        val currentHeight = contentHeight
+    private fun animateHeightAndAlpha(targetHeight: Int, targetAlpha: Int) {
+        val currentHeight = messageBoxHeight
         if (currentHeight == targetHeight) {
+            textPaint.alpha = targetAlpha
             invalidate()
             return
         }
+        alphaOffset = textPaint.alpha.toFloat()
+        alphaDif = targetAlpha - alphaOffset
         val dif = currentHeight - targetHeight
         val duration =
-            (dif.absoluteValue.coerceAtMost(singleLineHeight) / singleLineHeight.toFloat() * FULL_DURATION).toLong()
-        animateHeight(currentHeight, targetHeight, duration)
+            (dif.absoluteValue / singleLineHeight.toFloat() * FULL_DURATION).toLong().coerceAtMost(FULL_DURATION)
+        animateHeightWightAlpha(currentHeight, targetHeight, duration)
     }
 
-    private fun animateHeight(from: Int, to: Int, duration: Long) {
+    private fun animateHeightWightAlpha(from: Int, to: Int, duration: Long) {
         val animator = ValueAnimator.ofInt(from, to)
         animator.duration = duration
         animator.addUpdateListener(this)
@@ -118,14 +128,15 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
     }
 
     override fun onAnimationUpdate(animation: ValueAnimator) {
-        contentHeight = animation.animatedValue as Int
+        messageBoxHeight = animation.animatedValue as Int
+        textPaint.alpha = (alphaOffset + alphaDif * animation.animatedFraction).roundToInt()
         requestLayout()
     }
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(Color.RED)
         canvas.save()
-        val offset = contentHeight - staticLayout.height - padding.toFloat()
+        val offset = messageBoxHeight - staticLayout.height - padding.toFloat()
         canvas.translate(padding.toFloat(), offset)
         staticLayout.draw(canvas)
         canvas.restore()
