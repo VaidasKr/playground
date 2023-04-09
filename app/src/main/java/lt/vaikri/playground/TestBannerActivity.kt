@@ -1,9 +1,14 @@
 package lt.vaikri.playground
 
 import android.os.Bundle
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import lt.vaikri.playground.banner.BannerMessageView
@@ -14,9 +19,22 @@ class TestBannerActivity : AppCompatActivity(R.layout.activity_test_banner) {
     private val service by lazy { StatusBannerService() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
-        findViewById<BannerMessageView>(R.id.bannerMessageView)
-            .attach(this)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, windowInsets ->
+            val system = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updateLayoutParams<MarginLayoutParams> {
+                bottomMargin = system.bottom
+                leftMargin = system.left
+                rightMargin = system.right
+                topMargin = system.top
+            }
+            windowInsets
+        }
+        findViewById<BannerMessageView>(R.id.bannerMessageView).apply {
+            setHasStatusBarPadding(true)
+            attach(this@TestBannerActivity)
+        }
         findViewById<Button>(R.id.internetButton)
             .setOnClickListener {
                 toggle(StatusMessage.NO_INTERNET)

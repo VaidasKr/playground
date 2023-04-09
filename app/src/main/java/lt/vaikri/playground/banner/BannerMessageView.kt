@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.Rect
 import android.text.Layout
 import android.text.StaticLayout
@@ -17,11 +18,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
+import lt.vaikri.playground.R
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-// FIXME add top inset padding if needed
-//  compose
 class BannerMessageView(context: Context, attrs: AttributeSet) :
     View(context, attrs), ValueAnimator.AnimatorUpdateListener {
 
@@ -32,11 +32,16 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
     private var alphaOffset = 0F
     private var alphaDif = 0F
     private var hasStatusBarPadding: Boolean = false
-    private var statusBarPaddingColor: Int = 0x33000000
-    private val statusBarPaddingRect = Rect()
+    private val statusBarPaddingPaint = Paint().apply {
+        isAntiAlias = true
+        color = context.getColor(R.color.purple_700)
+        style = Paint.Style.FILL
+    }
+    private val statusBarPaddingRect = Rect(0, 0, fullWidth, 0)
     private val padding = (2 * resources.displayMetrics.density).roundToInt()
     private val textPaint = TextPaint()
         .apply {
+            isAntiAlias = true
             textSize = resources.displayMetrics.scaledDensity * 20
             letterSpacing = 0.025f
             color = 0x00FFFFFF
@@ -95,7 +100,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
     }
 
     fun setStatusBarColor(color: Int) {
-        statusBarPaddingColor = color
+        statusBarPaddingPaint.color = color
         invalidate()
     }
 
@@ -135,8 +140,13 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(Color.RED)
+        var height = messageBoxHeight
+        if (hasStatusBarPadding) {
+            height += statusBarPaddingRect.height()
+            canvas.drawRect(statusBarPaddingRect, statusBarPaddingPaint)
+        }
         canvas.save()
-        val offset = messageBoxHeight - staticLayout.height - padding.toFloat()
+        val offset = height - staticLayout.height - padding.toFloat()
         canvas.translate(padding.toFloat(), offset)
         staticLayout.draw(canvas)
         canvas.restore()
