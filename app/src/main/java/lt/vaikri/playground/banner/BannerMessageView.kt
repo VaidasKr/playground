@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 class BannerMessageView(context: Context, attrs: AttributeSet) :
     View(context, attrs), ValueAnimator.AnimatorUpdateListener {
 
-    private val fullWidth: Int get() = resources.displayMetrics.widthPixels
+    private val screenWidth: Int get() = resources.displayMetrics.widthPixels
 
     private var messageBoxHeight = 0
     private var animator: ValueAnimator? = null
@@ -37,7 +37,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
         color = context.getColor(R.color.purple_700)
         style = Paint.Style.FILL
     }
-    private val statusBarPaddingRect = Rect(0, 0, fullWidth, 0)
+    private val statusBarPaddingRect = Rect(0, 0, screenWidth, 0)
     private val padding = (2 * resources.displayMetrics.density).roundToInt()
     private val textPaint = TextPaint()
         .apply {
@@ -47,7 +47,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
             color = 0x00FFFFFF
         }
     private var staticLayout = buildStaticTextLayout("")
-    private val textHeightWightPadding = staticLayout.height + 2 * padding
+    private val textHeightWightPadding get() = staticLayout.height + 2 * padding
     private val singleLineHeight: Int = textHeightWightPadding
 
     override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets {
@@ -64,7 +64,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(
-            fullWidth,
+            screenWidth,
             if (hasStatusBarPadding) statusBarPaddingRect.height() + messageBoxHeight else messageBoxHeight
         )
     }
@@ -105,7 +105,7 @@ class BannerMessageView(context: Context, attrs: AttributeSet) :
     }
 
     private fun buildStaticTextLayout(text: String): StaticLayout =
-        StaticLayout.Builder.obtain(text, 0, text.length, textPaint, fullWidth - 2 * padding)
+        StaticLayout.Builder.obtain(text, 0, text.length, textPaint, screenWidth - 2 * padding)
             .setAlignment(Layout.Alignment.ALIGN_CENTER)
             .build()
 
