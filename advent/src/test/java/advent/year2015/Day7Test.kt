@@ -40,11 +40,11 @@ class Day7Test {
     fun actual() {
         val input = readFile("2015/Day7")
         val toValueMap = Day7.toValueMap(input)
-        toValueMap.forEach {
-            if (it.value > 65535u) {
-                println(it.key)
-            }
-        }
+//        toValueMap.forEach {
+//            if (it.value > 65535u) {
+//                println(it.key)
+//            }
+//        }
         val overrideValue = toValueMap["a"]!!.toInt()
         overrideValue.assert(16076)
 

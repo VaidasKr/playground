@@ -1,7 +1,7 @@
 package advent.year2015
 
 import advent.assert
-import advent.print
+import org.junit.Assert
 import org.junit.Test
 
 class Day25Test {
@@ -25,7 +25,8 @@ class Day25Test {
 
     @Test
     fun actual() {
-        Day25.calculate(2978, column = 3083).print()
+        val result = Day25.calculate(2978, column = 3083)
+        Assert.assertEquals(2650453, result)
     }
 
     @Test

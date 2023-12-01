@@ -1,10 +1,10 @@
 package advent.year2022
 
 import advent.assert
-import advent.print
 import advent.readFile
 import advent.unpackInt1
 import advent.unpackInt2
+import org.junit.Assert
 import org.junit.Test
 
 class Day22Test {
@@ -287,7 +287,8 @@ class Day22Test {
             commands.forEach { command ->
                 day22.runCommand(command)
             }
-            day22.flatState.score.print()
+            val score = day22.flatState.score
+            Assert.assertEquals(57350, score)
         }
     }
 

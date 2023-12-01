@@ -1,7 +1,6 @@
 package advent.year2015
 
 import advent.assert
-import advent.print
 import advent.readFile
 import org.junit.Test
 

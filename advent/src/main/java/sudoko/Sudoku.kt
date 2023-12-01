@@ -212,10 +212,9 @@ value class Sudoku(val array: IntArray) {
 
         fun solve(input: String): String {
             val table = parse(input)
-            table.print()
 
             while (table.iterate()) {
-                table.print()
+
             }
             return table.toString()
         }

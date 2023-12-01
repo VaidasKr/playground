@@ -4,7 +4,6 @@ import advent.assert
 import advent.readFile
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.system.measureNanoTime
 
 class Day19Test {
     @Test
@@ -25,15 +24,6 @@ class Day19Test {
             val bluePrint = day19.blueprints[i]
             val actual = bluePrint.searchDecisionBased(24)
             sum.updateAndGet { it + bluePrint.id * actual }
-        }
-        for (blueprint in day19.blueprints) {
-            val decision = measureNanoTime { blueprint.searchDecisionBased(24) } to "deci"
-            val fast = measureNanoTime { blueprint.searchFast(24) } to "fast"
-//            val step = measureNanoTime { blueprint.searchStepBased(24) } to "step"
-            println("blueprint ${blueprint.id}")
-            listOf(decision, fast).sortedBy { it.first }
-                .forEach { (time, name) -> println("$name - $time") }
-            println()
         }
         sum.get().assert(1346)
         sum.set(1)

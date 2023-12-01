@@ -1,8 +1,8 @@
 package advent.year2022
 
 import advent.assert
-import advent.print
 import advent.readFile
+import org.junit.Assert
 import org.junit.Test
 
 class Day18Test {
@@ -25,15 +25,13 @@ class Day18Test {
     @Test
     fun actual() {
         val input = readFile("2022/day18")
-        printArea(input)
-        Day18.calculateOutside(input).print()
+        val result1 = Day18.calculateTotalWithCubes(input)
+        Assert.assertEquals(3374, result1)
+        val result2 = Day18.calculateOutside(input)
+        Assert.assertEquals(2010, result2)
     }
 
     private fun calculateArea(input: String, expected: Long) {
         Day18.calculateTotalWithCubes(input).assert(expected)
-    }
-
-    private fun printArea(input: String) {
-        Day18.calculateTotalWithCubes(input).print()
     }
 }

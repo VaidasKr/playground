@@ -1,7 +1,6 @@
 package advent.year2022
 
 import advent.assert
-import advent.print
 import advent.readFileLines
 import org.junit.Test
 
@@ -18,9 +17,7 @@ class Day14Test {
         while (day14.dropNoFloor()) {
             bags++
         }
-        bags.print()
         bags.assert(24)
-        println()
         day14.draw()
     }
 
@@ -36,7 +33,6 @@ class Day14Test {
         while (day14.dropWithFloor()) {
             bags++
         }
-        bags.print()
         bags.assert(93)
         println()
         day14.draw(true)
@@ -54,7 +50,6 @@ class Day14Test {
         }
         println()
         day14.draw(false)
-        bags.print()
         bags.assert(825)
     }
 
@@ -70,7 +65,6 @@ class Day14Test {
         }
         day14.draw(true)
         println()
-        bags.print()
         bags.assert(26729)
     }
 }

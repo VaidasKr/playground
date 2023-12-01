@@ -3,7 +3,7 @@ package advent.year2015
 import advent.assertFalse
 import advent.assertTrue
 import advent.fileLines
-import advent.print
+import org.junit.Assert
 import org.junit.Test
 
 class Day5Test {
@@ -26,7 +26,7 @@ class Day5Test {
                 if (Day5.isNice(line)) nice1++
                 if (Day5.isNice2(line)) nice2++
             }
-        nice1.print()
-        nice2.print()
+        Assert.assertEquals(236, nice1)
+        Assert.assertEquals(51, nice2)
     }
 }

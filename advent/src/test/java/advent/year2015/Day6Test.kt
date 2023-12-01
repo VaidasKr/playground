@@ -2,7 +2,7 @@ package advent.year2015
 
 import advent.assert
 import advent.fileLines
-import advent.print
+import org.junit.Assert
 import org.junit.Test
 
 class Day6Test {
@@ -12,8 +12,8 @@ class Day6Test {
         fileLines("2015/Day6").filter { it.isNotBlank() }.forEach { command ->
             day6.runCommand(command)
         }
-        day6.enabledCount.print()
-        day6.lightIntensity.print()
+        Assert.assertEquals(543903, day6.enabledCount)
+        Assert.assertEquals(14687245, day6.lightIntensity)
     }
 
     @Test

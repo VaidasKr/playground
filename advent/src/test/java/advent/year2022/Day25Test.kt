@@ -2,7 +2,6 @@ package advent.year2022
 
 import advent.assert
 import advent.fileLines
-import advent.print
 import org.junit.Test
 
 class Day25Test {

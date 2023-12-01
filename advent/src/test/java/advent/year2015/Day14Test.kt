@@ -1,8 +1,8 @@
 package advent.year2015
 
 import advent.assert
-import advent.print
 import advent.readFile
+import org.junit.Assert
 import org.junit.Test
 
 class Day14Test {
@@ -19,6 +19,7 @@ class Day14Test {
     fun actual() {
         val day14 = Day14(readFile("2015/Day14"))
         day14.maxDistanceAfter(2503).assert(2696)
-        day14.maxScoreAfter(2503).print()
+        val result = day14.maxScoreAfter(2503)
+        Assert.assertEquals(1084, result)
     }
 }

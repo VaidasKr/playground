@@ -1,7 +1,6 @@
 package advent.year2022
 
 import advent.assert
-import advent.print
 import advent.readFile
 import org.junit.Assert
 import org.junit.Test
@@ -49,10 +48,14 @@ class Day20Test {
             after
         }.assert(4066)
         val mutatedWithKey = input.perMutateWithKey(811589153)
-        listOf(1000, 2000, 3000).sumOf { indexes ->
+        val result = listOf(1000, 2000, 3000).sumOf { indexes ->
             val after = Day20.getAfter(mutatedWithKey, 0, indexes)
             println("after $indexes -> $after")
             after
-        }.print()
+        }
+        Assert.assertEquals(
+            6704537992933,
+            result
+        )
     }
 }

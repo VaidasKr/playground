@@ -2,7 +2,6 @@ package advent.year2022
 
 import advent.assert
 import advent.fileLines
-import advent.print
 import org.junit.Assert
 import org.junit.Test
 
@@ -47,20 +46,17 @@ class Day13Test {
     fun `test part 2`() {
         val additional = sequenceOf("[[2]]", "[[6]]")
         val day = Day13()
-        val sorted = fileLines("2022/day13sample").plus(additional).toMutableList()
+        val sorted = fileLines("2022/day13actual").plus(additional).toMutableList()
             .filter { it.isNotBlank() }
             .sortedWith { first, second ->
                 day.compare(first, second)
-            }.onEach {
-                println(it)
             }
         var score = 1
         additional.forEach {
-            val indexOf = sorted.indexOf(it) +1
-            println("index of $it $indexOf")
+            val indexOf = sorted.indexOf(it) + 1
             score *= indexOf
         }
-        score.print()
+        Assert.assertEquals(20570, score)
     }
 
     private fun testCompare(left: String, right: String): Boolean = Day13().compareBoolean(left, right)

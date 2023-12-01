@@ -18,18 +18,6 @@ fun Boolean.assertFalse() {
     Assert.assertFalse(this)
 }
 
-fun Int.print() {
-    println(this)
-}
-
-fun Long.print() {
-    println(this)
-}
-
-fun String.print() {
-    println(this)
-}
-
 fun String.assert(expected: String) {
     Assert.assertEquals(expected, this)
 }

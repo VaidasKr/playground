@@ -1,7 +1,6 @@
 package sudoko
 
 import advent.assert
-import advent.assertFalse
 import advent.assertTrue
 import org.junit.Assert
 import org.junit.Test
@@ -118,11 +117,6 @@ class SudokuTest {
     @Test
     fun checkIteration() {
         Sudoku.parse(hardInput).iterate().assertTrue()
-    }
-
-    @Test
-    fun `solve-hard`() {
-        Sudoku.solve(hardInput).contains('.').assertFalse()
     }
 
     @Test

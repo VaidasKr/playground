@@ -1,14 +1,16 @@
 package advent.year2015
 
 import advent.assert
-import advent.print
+import org.junit.Assert
 import org.junit.Test
 
 class Day4Test {
     @Test
     fun actual() {
-        Day4.findZeroLeadHash("ckczppom").print()
-        Day4.findZeroLeadHash2("ckczppom").print()
+        val result1 = Day4.findZeroLeadHash("ckczppom")
+        Assert.assertEquals(117946, result1)
+        val result2 = Day4.findZeroLeadHash2("ckczppom")
+        Assert.assertEquals(3938038, result2)
     }
 
     @Test
