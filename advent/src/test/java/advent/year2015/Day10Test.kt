@@ -1,7 +1,6 @@
 package advent.year2015
 
 import advent.assert
-import advent.print
 import org.junit.Test
 
 class Day10Test {
@@ -37,7 +36,7 @@ class Day10Test {
             result = Day10.transform(result)
         }
         result.length.assert(252594)
-        repeat(10){
+        repeat(10) {
             result = Day10.transform(result)
         }
         result.length.assert(3579328)
