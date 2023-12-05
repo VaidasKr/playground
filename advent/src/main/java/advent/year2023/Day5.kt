@@ -53,11 +53,8 @@ object Day5 {
     ): Long {
         var destinationRanges = ranges
         for (rangeList in parsedRanges) {
-            println("ranges $destinationRanges")
-            println("with ${rangeList.joinToString { "${it.second}-${it.second + it.third - 1} offset (${it.first - it.second})" }}")
             destinationRanges = updateRanges(rangeList, destinationRanges)
         }
-        println("final $destinationRanges")
         var min = destinationRanges.first().first
         destinationRanges.forEach { range ->
             if (range.first < min) {
@@ -156,7 +153,6 @@ object Day5 {
         for (i in numbers.indices step 2) {
             val rangeStart = numbers[i]
             val rangeEnd = numbers[i + 1]
-            println("parsing seed pair $rangeStart $rangeEnd")
             repeat(rangeEnd.toInt()) {
                 val locationForSeed = convertWhilePossible(parsedRanges, 0, rangeStart + it)
                 if (locationForSeed < min) {
