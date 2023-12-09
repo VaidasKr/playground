@@ -1,6 +1,12 @@
 package advent.year2023
 
 object Day5 {
+    private data class MapRange(val destinationStart: Long, val sourceStart: Long, val count: Long) {
+        val offset = destinationStart - sourceStart
+        val sourceEnd = sourceStart + count - 1
+        val destinationEnd = destinationStart + count - 1
+    }
+
     fun findLowestLocationNumber(input: String): Long {
         var min = Long.MAX_VALUE
         val lines = input.split('\n')
@@ -19,9 +25,26 @@ object Day5 {
         return min
     }
 
-    private fun convertWhilePossible(
-        conversionsList: List<List<Triple<Long, Long, Long>>>, index: Int, source: Long
-    ): Long {
+    private fun convertToMaps(lines: List<String>): List<List<MapRange>> = buildList {
+        var pairList = mutableListOf<MapRange>()
+        for (line in lines) {
+            if (line.isBlank()) {
+                if (pairList.isNotEmpty()) {
+                    add(pairList)
+                    pairList = mutableListOf()
+                }
+            } else if (line[0].isDigit()) {
+                val numbers = line.split(' ').map { it.toLong() }
+                val element = MapRange(numbers[0], numbers[1], numbers[2])
+                pairList.add(element)
+            }
+        }
+        if (pairList.isNotEmpty()) {
+            add(pairList)
+        }
+    }
+
+    private fun convertWhilePossible(conversionsList: List<List<MapRange>>, index: Int, source: Long): Long {
         if (index == conversionsList.size) return source
         val conversions = conversionsList[index]
         val destination = convert(conversions, source)
@@ -48,24 +71,18 @@ object Day5 {
     }
 
     private fun findLowestDestinationForRanges(
-        parsedRanges: List<List<Triple<Long, Long, Long>>>,
+        parsedRanges: List<List<MapRange>>,
         ranges: List<Pair<Long, Long>>
     ): Long {
         var destinationRanges = ranges
         for (rangeList in parsedRanges) {
             destinationRanges = updateRanges(rangeList, destinationRanges)
         }
-        var min = destinationRanges.first().first
-        destinationRanges.forEach { range ->
-            if (range.first < min) {
-                min = range.first
-            }
-        }
-        return min
+        return destinationRanges.minOf { it.first }
     }
 
     private fun updateRanges(
-        rangeList: List<Triple<Long, Long, Long>>,
+        rangeList: List<MapRange>,
         sourceRanges: List<Pair<Long, Long>>
     ): List<Pair<Long, Long>> {
         val destinationRanges = mutableSetOf<Pair<Long, Long>>()
@@ -74,31 +91,25 @@ object Day5 {
             var rangesToIterate = hashSetOf(range)
             for (map in rangeList) {
                 val leftOverRange = hashSetOf<Pair<Long, Long>>()
-                val destinationStart = map.first
-                val destinationEnd = destinationStart + map.third - 1
-                val sourceStart = map.second
-                val sourceEnd = sourceStart + map.third - 1
-                rangesToIterate.forEach { inputRange ->
-                    val inputStart = inputRange.first
-                    val inputEnd = inputRange.second
-                    if (inputEnd < sourceStart || inputStart > sourceEnd) {
-                        leftOverRange.add(inputRange)
-                    } else if (inputStart >= sourceStart && inputEnd <= sourceEnd) {
+                rangesToIterate.forEach { (inputStart, inputEnd) ->
+                    if (inputEnd < map.sourceStart || inputStart > map.sourceEnd) {
+                        leftOverRange.add(inputStart to inputEnd)
+                    } else if (inputStart >= map.sourceStart && inputEnd <= map.sourceEnd) {
                         destinationRanges.add(
-                            inputStart - sourceStart + destinationStart to inputEnd - sourceStart + destinationStart
+                            inputStart + map.offset to inputEnd + map.offset
                         )
                     } else {
-                        val start = if (inputStart < sourceStart) {
-                            leftOverRange.add(inputStart to sourceStart - 1)
-                            destinationStart
+                        val start = if (inputStart < map.sourceStart) {
+                            leftOverRange.add(inputStart to map.sourceStart - 1)
+                            map.destinationStart
                         } else {
-                            inputStart - sourceStart + destinationStart
+                            inputStart + map.offset
                         }
-                        val end = if (inputEnd <= sourceEnd) {
-                            inputEnd - sourceStart + destinationStart
+                        val end = if (inputEnd <= map.sourceEnd) {
+                            inputEnd + map.offset
                         } else {
-                            leftOverRange.add(sourceEnd + 1 to inputEnd)
-                            destinationEnd
+                            leftOverRange.add(map.sourceEnd + 1 to inputEnd)
+                            map.destinationEnd
                         }
                         destinationRanges.add(start to end)
                     }
@@ -111,55 +122,10 @@ object Day5 {
         return destinationRanges.toList()
     }
 
-    private fun convert(conversions: List<Triple<Long, Long, Long>>, source: Long): Long {
-        for (conversion in conversions) {
-            if (source >= conversion.second && source < conversion.second + conversion.third) {
-                return source - conversion.second + conversion.first
-            }
+    private fun convert(maps: List<MapRange>, source: Long): Long {
+        for (map in maps) {
+            if (source >= map.sourceStart && source <= map.sourceEnd) return source + map.offset
         }
         return source
-    }
-
-    private fun convertToMaps(lines: List<String>): List<List<Triple<Long, Long, Long>>> {
-        return buildList {
-            var pairList = mutableListOf<Triple<Long, Long, Long>>()
-            for (line in lines) {
-                if (line.isBlank()) {
-                    if (pairList.isNotEmpty()) {
-                        add(pairList)
-                        pairList = mutableListOf()
-                    }
-                } else if (line[0].isDigit()) {
-                    val numbers = line.split(' ').map { it.toLong() }
-                    val element = Triple(numbers[0], numbers[1], numbers[2])
-                    pairList.add(element)
-                }
-            }
-            if (pairList.isNotEmpty()) {
-                add(pairList)
-            }
-        }
-    }
-
-    fun findLowestLocationNumberWithRangesOld(input: String): Long {
-        var min = Long.MAX_VALUE
-        val lines = input.split('\n')
-        val numbers = lines[0].substring(lines[0].indexOf(':') + 2).split(' ').map { it.toLong() }
-
-        val nextLines = lines.drop(2)
-
-        val parsedRanges = convertToMaps(nextLines)
-
-        for (i in numbers.indices step 2) {
-            val rangeStart = numbers[i]
-            val rangeEnd = numbers[i + 1]
-            repeat(rangeEnd.toInt()) {
-                val locationForSeed = convertWhilePossible(parsedRanges, 0, rangeStart + it)
-                if (locationForSeed < min) {
-                    min = locationForSeed
-                }
-            }
-        }
-        return min
     }
 }

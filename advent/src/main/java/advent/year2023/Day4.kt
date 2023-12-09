@@ -1,5 +1,7 @@
 package advent.year2023
 
+import kotlin.math.min
+
 object Day4 {
     fun calculateCardScoreSum(sampleInput: String): Long {
         var sum = 0L
@@ -26,7 +28,7 @@ object Day4 {
         var cardSum = 0L
 
         val lines = sampleInput.trim().split('\n')
-        val map = mutableMapOf<Int, Int>()
+        val copies = IntArray(lines.size)
         for (i in lines.indices) {
             val line = lines[i]
             val numbers = line.substring(line.indexOf(':') + 2).split(" | ")
@@ -38,11 +40,10 @@ object Day4 {
                     cardMatches++
                 }
             }
-            val cardInstances = map.getOrElse(i) { 0 } + 1
+            val cardInstances = copies[i] + 1
             cardSum += cardInstances
-            for (j in 0 until cardMatches) {
-                val cardToUpdateIndex = j + i + 1
-                map[cardToUpdateIndex] = map.getOrElse(cardToUpdateIndex) { 0 } + cardInstances
+            for (j in (i + 1) until min(copies.size, i + 1 + cardMatches)) {
+                copies[j] = copies[j] + cardInstances
             }
         }
         return cardSum

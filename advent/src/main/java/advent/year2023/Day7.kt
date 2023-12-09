@@ -66,10 +66,6 @@ object Day7 {
 
     private fun bestJokerReplacement(cards: String): String {
         val buildMap = charCountMap(cards).filter { it.key != 'J' }
-        return if (buildMap.isEmpty()) {
-            "AAAAA"
-        } else {
-            cards.replace('J', buildMap.maxBy { it.value }.key)
-        }
+        return if (buildMap.isEmpty()) "AAAAA" else cards.replace('J', buildMap.maxBy { it.value }.key)
     }
 }
