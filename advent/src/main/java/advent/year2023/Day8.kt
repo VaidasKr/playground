@@ -1,12 +1,16 @@
 package advent.year2023
 
 object Day8 {
-    fun stepsFrom(input: String, start: String, end: String): Int {
+    fun stepsFrom(input: String, start: String, end: String): Long {
         val lines = input.trim().split('\n')
 
         val instructions = lines[0].trim()
 
-        val map = buildMap {
+        return stepsToMatching(buildMap(lines), instructions, start) { location -> location == end }
+    }
+
+    private fun buildMap(lines: List<String>): Map<String, Pair<String, String>> =
+        buildMap {
             for (i in 2 until lines.size) {
                 val line = lines[i]
                 val starting = line.substring(0, line.indexOf(' '))
@@ -15,21 +19,22 @@ object Day8 {
             }
         }
 
-
-        var i = 0
+    private inline fun stepsToMatching(
+        map: Map<String, Pair<String, String>>,
+        instructions: String,
+        start: String,
+        end: (String) -> Boolean
+    ): Long {
+        var step = 0L
         var next: String = start
         while (true) {
-            val direction = instructions.charAtMod(i++)
+            val direction = instructions.charAtMod(step++)
             next = getNext(map, next, direction)
-            if (next == end) {
-                return i
-            }
+            if (end(next)) return step
         }
     }
 
     private fun String.charAtMod(index: Long): Char = get((index % length).toInt())
-
-    private fun String.charAtMod(index: Int): Char = get(index % length)
 
     private fun getNext(
         map: Map<String, Pair<String, String>>,
@@ -46,49 +51,16 @@ object Day8 {
 
         val instructions = lines[0].trim()
 
-        val nextPoints = mutableListOf<String>()
-        val map = buildMap {
-            for (i in 2 until lines.size) {
-                val line = lines[i]
-                val starting = line.substring(0, line.indexOf(' '))
-                if (starting.endsWith('A')) {
-                    nextPoints.add(starting)
-                }
-                val leftRight = line.substring(line.indexOf('(') + 1, line.indexOf(')')).split(", ")
-                put(starting, leftRight[0] to leftRight[1])
-            }
-        }
-
-        var i = 0L
-        val indices = nextPoints.indices
-        val repeating = Array(nextPoints.size) { -1L to -1L }
-        while (true) {
-            val direction = instructions.charAtMod(i++)
-            var isEnd = true
-            for (j in indices) {
-                nextPoints[j] = getNext(map, nextPoints[j], direction)
-                val isEndFor = nextPoints[j].endsWith('Z')
-                if (isEndFor) {
-                    val (lastIndex, _) = repeating[j]
-                    if (lastIndex == -1L) {
-                        repeating[j] = i to -1
-                    } else {
-                        repeating[j] = i to i - lastIndex
-                    }
-                    if (repeating.all { it.second > -1L }) {
-                        return leastCommonMultipleOf(LongArray(repeating.size) { repeating[it].second })
-                    }
-                }
-                isEnd = isEnd && isEndFor
-            }
-            if (isEnd) return i
-        }
+        val map = buildMap(lines)
+        return map.keys.filter { it.endsWith('A') }
+            .map { stepsToMatching(map, instructions, it) { location -> location.endsWith('Z') } }
+            .leastCommonMultipleOf()
     }
 
-    private fun leastCommonMultipleOf(multiples: LongArray): Long {
-        var result = multiples[0]
-        for (i in 1 until multiples.size) {
-            result = lowestCommonMultiple(result, multiples[i])
+    private fun List<Long>.leastCommonMultipleOf(): Long {
+        var result = this[0]
+        for (i in 1 until size) {
+            result = lowestCommonMultiple(result, this[i])
         }
         return result
     }
