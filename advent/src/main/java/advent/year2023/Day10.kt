@@ -1,10 +1,10 @@
 package advent.year2023
 
 object Day10 {
-    private val above = "|7F"
-    private val bellow = "|JL"
-    private val left = "-FL"
-    private val right = "-7J"
+    private const val ABOVE = "|7F"
+    private const val BELLOW = "|JL"
+    private const val LEFT = "-FL"
+    private const val RIGHT = "-7J"
 
     fun findFurthestPoint(input: String): Long {
         val map = input.split('\n').filter { it.isNotBlank() }
@@ -27,21 +27,17 @@ object Day10 {
             val startX = start.first
             val startY = start.second
             if (startY > 0) {
-                val above = map[startY - 1][startX]
-                if (above == '|' || above == '7' || above == 'F') add(startX to startY - 1)
+                if (ABOVE.contains(map[startY - 1][startX])) add(startX to startY - 1)
             }
             if (startY < map.size - 1) {
-                val bellow = map[startY + 1][startX]
-                if (bellow == '|' || bellow == 'J' || bellow == 'L') add(startX to startY + 1)
+                if (BELLOW.contains(map[startY + 1][startX])) add(startX to startY + 1)
             }
             val line = map[startY]
             if (startX > 0) {
-                val left = line[startX - 1]
-                if (left == '-' || left == 'F' || left == 'L') add(startX - 1 to startY)
+                if (LEFT.contains(line[startX - 1])) add(startX - 1 to startY)
             }
             if (startX < line.length - 1) {
-                val right = line[startX + 1]
-                if (right == '-' || right == 'J' || right == '7') add(startX + 1 to startY)
+                if (RIGHT.contains(line[startX + 1])) add(startX + 1 to startY)
             }
         }.toHashSet()
         var points = visited.toSet()
@@ -102,7 +98,7 @@ object Day10 {
         val start = findStart(map)
         val startChar = determineStartChar(map, start)
         mutable[start.second] = mutable[start.second].replace('S', startChar)
-        val visited = getVisitedPoints(map, start)
+        val visited = getPipeLoopPoints(map, start)
         return countInsidePoints(mutable, visited)
     }
 
@@ -115,24 +111,24 @@ object Day10 {
         val rightChar = line.getOrElse(startX + 1) { '.' }
         val leftChar = line.getOrElse(startX - 1) { '.' }
         return when {
-            above.contains(aboveChar) -> {
+            ABOVE.contains(aboveChar) -> {
                 when {
-                    bellow.contains(bellowChar) -> '|'
-                    right.contains(rightChar) -> 'L'
-                    left.contains(leftChar) -> 'J'
+                    BELLOW.contains(bellowChar) -> '|'
+                    RIGHT.contains(rightChar) -> 'L'
+                    LEFT.contains(leftChar) -> 'J'
                     else -> throw RuntimeException("fail above")
                 }
             }
 
-            bellow.contains(bellowChar) -> {
+            BELLOW.contains(bellowChar) -> {
                 when {
-                    right.contains(rightChar) -> 'F'
-                    left.contains(leftChar) -> '7'
+                    RIGHT.contains(rightChar) -> 'F'
+                    LEFT.contains(leftChar) -> '7'
                     else -> throw RuntimeException("fail bellow")
                 }
             }
 
-            right.contains(rightChar) && left.contains(leftChar) -> return '-'
+            RIGHT.contains(rightChar) && LEFT.contains(leftChar) -> return '-'
 
             else -> {
                 throw RuntimeException("fail")
@@ -159,7 +155,7 @@ object Day10 {
                 val char = updated[y][x]
                 if (char == '.' && inside) {
                     sum++
-                } else if ("|JL".contains(char)) {
+                } else if (ABOVE.contains(char)) {
                     inside = !inside
                 }
             }
@@ -167,28 +163,23 @@ object Day10 {
         return sum
     }
 
-    private fun getVisitedPoints(map: List<String>, start: Pair<Int, Int>): Set<Pair<Int, Int>> {
-        val visited = buildSet {
-            val startX = start.first
-            val startY = start.second
-            if (startY > 0) {
-                val above = map[startY - 1][startX]
-                if (above == '|' || above == '7' || above == 'F') add(startX to startY - 1)
-            }
-            if (startY < map.size - 1) {
-                val bellow = map[startY + 1][startX]
-                if (bellow == '|' || bellow == 'J' || bellow == 'L') add(startX to startY + 1)
-            }
-            val line = map[startY]
-            if (startX > 0) {
-                val left = line[startX - 1]
-                if (left == '-' || left == 'F' || left == 'L') add(startX - 1 to startY)
-            }
-            if (startX < line.length - 1) {
-                val right = line[startX + 1]
-                if (right == '-' || right == 'J' || right == '7') add(startX + 1 to startY)
-            }
-        }.toHashSet()
+    private fun getPipeLoopPoints(map: List<String>, start: Pair<Int, Int>): Set<Pair<Int, Int>> {
+        val visited = hashSetOf<Pair<Int, Int>>()
+        val startX = start.first
+        val startY = start.second
+        if (startY > 0) {
+            if (ABOVE.contains(map[startY - 1][startX])) visited.add(startX to startY - 1)
+        }
+        if (startY < map.size - 1) {
+            if (BELLOW.contains(map[startY + 1][startX])) visited.add(startX to startY + 1)
+        }
+        val line = map[startY]
+        if (startX > 0) {
+            if (LEFT.contains(line[startX - 1])) visited.add(startX - 1 to startY)
+        }
+        if (startX < line.length - 1) {
+            if (RIGHT.contains(line[startX + 1])) visited.add(startX + 1 to startY)
+        }
         var points = visited.toSet()
         visited.add(start)
         while (points.size == 2) {
