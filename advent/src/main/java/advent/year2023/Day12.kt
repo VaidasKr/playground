@@ -3,11 +3,13 @@ package advent.year2023
 object Day12 {
     fun sumOfPossibleArrangements(input: String): Long {
         val memory: HashMap<Pair<String, List<Int>>, Long> = hashMapOf()
-        return input.trim().split('\n').sumOf { line ->
-            val (records, damaged) = line.split(' ')
-            val brokenSequence = damaged.split(',').map { it.toInt() }
-            solve(memory, records, brokenSequence)
-        }
+        return input.trim().split('\n')
+            .sumOf { line -> parse(line) { records, sequence -> solve(memory, records, sequence) } }
+    }
+
+    private inline fun parse(line: String, parsed: (String, List<Int>) -> Long): Long {
+        val (records, damaged) = line.split(' ')
+        return parsed(records, damaged.split(',').map { it.toInt() })
     }
 
     private fun solve(
@@ -45,12 +47,8 @@ object Day12 {
 
     fun sumOfPossibleArrangementsUnfolded(input: String): Long {
         val memory: HashMap<Pair<String, List<Int>>, Long> = hashMapOf()
-        return input.trim().split('\n').sumOf { line ->
-            val (records, damaged) = line.split(' ')
-            val brokenSequence = damaged.split(',').map { it.toInt() }
-
-            unfoldAndSolve(memory, records, brokenSequence)
-        }
+        return input.trim().split('\n')
+            .sumOf { line -> parse(line) { records, sequence -> unfoldAndSolve(memory, records, sequence) } }
     }
 
     private fun unfoldAndSolve(
@@ -58,8 +56,9 @@ object Day12 {
         records: String,
         brokenSequence: List<Int>
     ): Long {
-        val unfoldedRecords = StringBuilder(records)
-        val unfoldedSequence = brokenSequence.toMutableList()
+        val unfoldedRecords = StringBuilder(records.length * 5 + 4).append(records)
+        val unfoldedSequence = ArrayList<Int>(brokenSequence.size * 5)
+        unfoldedSequence.addAll(brokenSequence)
         repeat(4) {
             unfoldedRecords.append('?').append(records)
             unfoldedSequence.addAll(brokenSequence)
