@@ -21,8 +21,7 @@ object Day12 {
         return when (records.first()) {
             '.' -> solve(memory, records.drop(1), brokenSequence)
             '#' -> checkSequence(memory, records, brokenSequence)
-            '?' -> solve(memory, records.drop(1), brokenSequence) + checkSequence(memory, records, brokenSequence)
-            else -> throw RuntimeException("fail")
+            else -> solve(memory, records.drop(1), brokenSequence) + checkSequence(memory, records, brokenSequence)
         }
     }
 
