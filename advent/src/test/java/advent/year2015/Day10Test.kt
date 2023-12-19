@@ -1,6 +1,6 @@
 package advent.year2015
 
-import advent.assert
+import org.junit.Assert
 import org.junit.Test
 
 class Day10Test {
@@ -35,14 +35,14 @@ class Day10Test {
         repeat(40) {
             result = Day10.transform(result)
         }
-        result.length.assert(252594)
+        Assert.assertEquals(252594, result.length)
         repeat(10) {
             result = Day10.transform(result)
         }
-        result.length.assert(3579328)
+        Assert.assertEquals(3579328, result.length)
     }
 
     private fun String.transformAndTest(expect: String) {
-        Day10.transform(this).assert(expect)
+        Assert.assertEquals(expect, Day10.transform(this))
     }
 }

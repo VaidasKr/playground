@@ -30,6 +30,8 @@ fun <T : Any> T.fileStream(name: String) = javaClass.classLoader.getResourceAsSt
 
 fun <T : Any> T.readFile(name: String): String = fileStream(name).readText().trimEnd()
 
+fun <T : Any> T.readFile(year: Int, day: Int): String = readFile("$year/Day$day")
+
 fun <T : Any> T.readFileLines(name: String): List<String> = fileStream(name).readLines()
 
 fun <T : Any> T.fileLines(name: String): Sequence<String> {
