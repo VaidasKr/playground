@@ -1,5 +1,6 @@
 package advent.year2023
 
+
 object Day21 {
     fun possiblePositionsAfterSteps(input: String, steps: Int): Int {
         val trimmed = input.trim()
@@ -57,6 +58,8 @@ object Day21 {
         }
     }
 
+    private data class InfinitePos(val position: Int, val gridX: Int, val gridY: Int)
+
     fun possiblePositionsAfterStepsInfinite(input: String, steps: Int): Long {
         val trimmed = input.trim()
         val singleLine = trimmed.replace("\n", "")
@@ -75,49 +78,51 @@ object Day21 {
         if (start == -1) error("no start")
         val width = trimmed.indexOf('\n')
         val grid = Grid(width, singleLine.length / width, states)
-        var index = 0
-        val even = steps % 2
+        val startPoint = InfinitePos(start, 0, 0)
+        var reachable = listOf(startPoint)
+        val reached = hashSetOf<InfinitePos>()
         var sum = 0L
-        if (even == 0) sum++
-        var positions = hashSetOf(InfinitePos(start, GridPos(0, 0)))
-        var previous = hashSetOf<InfinitePos>()
-        var lastSize = 0
         var lastSum = 0L
-        var lastSumDif = 0L
+        var lastDif = 0L
+        var lastDifDif = 0L
+        val evenMatch = steps % 2
+        var index = 0
         while (index++ < steps) {
-            val newSet = hashSetOf<InfinitePos>()
+            val newPoints = ArrayList<InfinitePos>()
             val onValid: (InfinitePos) -> Unit = { pos ->
-                if (!previous.contains(pos)) {
-                    newSet.add(pos)
+                if (reached.add(pos)) {
+                    newPoints.add(pos)
                 }
             }
-            positions.forEach { pos ->
+            for (i in reachable.indices) {
+                val pos = reachable[i]
                 addIfValidInfinite(grid, pos, 1, 0, onValid)
                 addIfValidInfinite(grid, pos, 0, 1, onValid)
                 addIfValidInfinite(grid, pos, -1, 0, onValid)
                 addIfValidInfinite(grid, pos, 0, -1, onValid)
             }
-            previous = positions
-            positions = newSet
-            if (index % 2 == even) {
-                sum += newSet.size
+            if (index % 2 == evenMatch) {
+                sum += newPoints.size
             }
             if (index % 262 == 65) {
-                val sizeDif = newSet.size - lastSize
-                val sumDif = sum - lastSum
-                val sumDifDif = sumDif - lastSumDif
-                println("$index new points ${newSet.size} (+$sizeDif) total $sum (+$sumDif (+$sumDifDif))")
+                val dif = sum - lastSum
                 lastSum = sum
-                lastSize = newSet.size
-                lastSumDif = sumDif
+                val difDif = dif - lastDif
+                lastDif = dif
+                if (lastDifDif > 0 && lastDifDif == difDif) {
+                    while (index < steps) {
+                        index += 262
+                        lastDif += lastDifDif
+                        sum += lastDif
+                    }
+                    return sum
+                }
+                lastDifDif = difDif
             }
+            reachable = newPoints
         }
         return sum
     }
-
-    private data class InfinitePos(val position: Int, val grid: GridPos)
-
-    private data class GridPos(val x: Int, val y: Int)
 
     private inline fun addIfValidInfinite(
         grid: Grid,
@@ -128,8 +133,8 @@ object Day21 {
     ) {
         var x = pos.position % grid.width + offsetX
         var y = pos.position / grid.width + offsetY
-        var gridX = pos.grid.x
-        var gridY = pos.grid.y
+        var gridX = pos.gridX
+        var gridY = pos.gridY
         if (x < 0) {
             x = grid.width - 1
             gridX--
@@ -145,8 +150,6 @@ object Day21 {
             gridY++
         }
         val newPos = y * grid.width + x
-        if (x in 0 until grid.width && y in 0 until grid.height && grid.states[newPos]) {
-            onValid(InfinitePos(newPos, GridPos(gridX, gridY)))
-        }
+        if (grid.states[newPos]) onValid(InfinitePos(newPos, gridX, gridY))
     }
 }

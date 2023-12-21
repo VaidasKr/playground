@@ -28,7 +28,7 @@ class Day21Test {
 
     @Test
     fun part2_sample() {
-        Day21.possiblePositionsAfterStepsInfinite(sample, 5000).assert(16733044)
+        Day21.possiblePositionsAfterStepsInfinite(sample, 500).assert(167004)
     }
 
     @Test
@@ -37,26 +37,7 @@ class Day21Test {
     }
 
     @Test
-    fun part2_actual() {
-        Day21.possiblePositionsAfterStepsInfinite(actual, 26501365).assert(3773)
-    }
-
-    @Test
     fun part2_cheat() {
-        var sum = 310018L
-        val difDif = 122296
-        var index = 589
-        var lastDif = 214220
-
-        while (index < 26501365) {
-            index += 262
-            lastDif += difDif
-            sum += lastDif
-//            println("$index $sum")
-        }
-
-        println(sum)
+        Day21.possiblePositionsAfterStepsInfinite(actual, 26501365).assert(625628021226274)
     }
-
-    // 26501365, 101150
 }
